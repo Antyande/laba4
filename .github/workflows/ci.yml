@@ -50,7 +50,7 @@ jobs:
 
       - name: Save build log
         run: |
-          echo "Build completed at $(date) > build-log.txt
+          echo "Build completed at $(date) > build-log.txt"
           docker images | grep myapp >> build-log.txt
 
       - name: Upload build log
