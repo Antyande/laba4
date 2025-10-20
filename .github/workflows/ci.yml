@@ -8,7 +8,29 @@ on:
     branches: [main]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      
+      - name: Lint Dockerfile with Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: error  # Падать только на errors, warnings разрешены
+          output-file: hadolint-report.txt
+      
+      - name: Upload Hadolint report
+        uses: actions/upload-artifact@v4
+        if: always()  # Загружать артефакт даже если предыдущий шаг упал
+        with:
+          name: hadolint-report
+          path: hadolint-report.txt
+
+
   build:
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       # Шаг 1: Получить код из репозитория
@@ -26,9 +48,19 @@ jobs:
         run: |
           docker run -d --name myapp-test -p 8080:8080 myapp:test
 
+      - name: Save build log
+        run: |
+          echo "Build completed at $(date) > build-log.txt
+          docker images | grep myapp >> build-log.txt
+
+      - name: Upload build log
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build-log.txt
+
+      - name: Remove container
+        run: |
           sleep 10
-
-          docker ps | grep myapp-test
-
-          docker stop myapp-test
+          docker stop my app-test
           docker rm myapp-test
