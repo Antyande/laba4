@@ -62,5 +62,5 @@ jobs:
       - name: Remove container
         run: |
           sleep 10
-          docker stop my app-test
+          docker stop myapp-test
           docker rm myapp-test
